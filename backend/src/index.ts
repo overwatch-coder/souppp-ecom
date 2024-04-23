@@ -25,6 +25,7 @@ import productRoutes from "@/routes/product.route";
 import restaurantRoutes from "@/routes/restaurant.route";
 import stripeRoutes from "@/routes/payment.route";
 import statusRoutes from "@/routes/status.route";
+import { logger } from "@/lib/logger";
 
 const initializeServer = async () => {
   // initialise app
@@ -34,6 +35,8 @@ const initializeServer = async () => {
   await connectDB();
 
   // apply middleware
+  app.use(helmet());
+  app.use(cors());
   app.use("/api", rateLimiter);
   app.use((req, res, next) => {
     if (req.originalUrl.startsWith("/api/payment/stripe-webhook")) {
@@ -44,10 +47,18 @@ const initializeServer = async () => {
   });
 
   app.use(express.urlencoded({ extended: true }));
-  app.use(cors());
   app.use(cookieParser());
-  app.use(helmet());
-  app.use(morgan("dev"));
+
+  if (process.env.NODE_ENV !== "production") {
+    app.use(
+      morgan("combined", {
+        stream: {
+          write: (message: string) => logger.log(logger.level, message),
+        },
+      })
+    );
+  }
+
   app.use(
     fileUpload({
       useTempFiles: true,
