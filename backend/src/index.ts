@@ -1,3 +1,5 @@
+import 'module-alias/register';
+
 // configure env in the entire application
 import dotenv from "dotenv";
 dotenv.config();
