@@ -158,7 +158,7 @@ export const loginUser = asyncHandler(
       });
     }
 
-    generateToken(res, user._id.toString());
+    const token = generateToken(res, user._id.toString());
 
     const { password, ...rest } = user;
 
@@ -166,6 +166,7 @@ export const loginUser = asyncHandler(
       success: true,
       data: rest,
       message: "You've successfully logged in.",
+      token
     });
   }
 );

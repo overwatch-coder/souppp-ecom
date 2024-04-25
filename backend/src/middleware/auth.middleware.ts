@@ -12,19 +12,30 @@ interface PayloadData {
 export const isUserProtected = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { access_token } = req.cookies;
-    if (!access_token) {
+    const authorisationToken = req.headers.authorization?.split(" ")[1];
+
+    // throw an error if token from both cookies and headers isn't present
+    if (!access_token && !authorisationToken) {
       throw createHttpError(
         "Not authorized, no token found.",
         HttpStatusCode.Forbidden
       );
     }
 
-    const decoded = jwt.verify(
-      access_token,
-      process.env.JWT_SECRET!
-    ) as PayloadData;
+    let decoded: PayloadData = { userId: "" };
+    if (access_token) {
+      decoded = jwt.verify(
+        access_token,
+        process.env.JWT_SECRET!
+      ) as PayloadData;
+    } else if (authorisationToken) {
+      decoded = jwt.verify(
+        authorisationToken,
+        process.env.JWT_SECRET!
+      ) as PayloadData;
+    }
 
-    if (!decoded) {
+    if (!decoded || !decoded.userId || decoded.userId === "") {
       throw createHttpError(
         "Not authorized, token expired. Please login again",
         HttpStatusCode.Forbidden
