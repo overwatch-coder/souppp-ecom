@@ -11,4 +11,7 @@ export const rateLimiter = rateLimit({
   standardHeaders: "draft-7", // Return rate limit info in the `RateLimit-*` headers
   statusCode: 429,
   legacyHeaders: false,
+  validate: {
+    trustProxy: false
+  }
 });
