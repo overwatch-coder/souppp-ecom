@@ -12,7 +12,7 @@
     "build": "rimraf dist && tsc",
     "ts.check": "tsc --project tsconfig.json",
     "add-build": "git add dist",
-    "stripe": "stripe listen --forward-to localhost:8000/api/payment/stripe-webhook"
+    "stripe": "stripe listen --forward-to https://souppp-ecom.onrender.com/api/payment/stripe-webhook"
   },
   "pre-commit": [
     "ts.check",
