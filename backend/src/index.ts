@@ -39,6 +39,7 @@ const initializeServer = async () => {
   // apply middleware
   app.use(helmet());
   app.use(cors());
+  app.set('trust proxy', 1);
   app.use("/api", rateLimiter);
   app.use((req, res, next) => {
     if (req.originalUrl.startsWith("/api/payment/stripe-webhook")) {
