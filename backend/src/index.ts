@@ -1,9 +1,11 @@
-import "module-alias/register";
-
 // configure env in the entire application
 import dotenv from "dotenv";
 dotenv.config();
 
+// import this module only in production
+if (process.env.NODE_ENV === "production") {
+  require("module-alias/register");
+}
 // import packages
 import express from "express";
 import cookieParser from "cookie-parser";
@@ -11,6 +13,7 @@ import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
 import fileUpload from "express-fileupload";
+import cron from "node-cron";
 
 // import config
 import { connectDB } from "@/config/db";
@@ -38,10 +41,12 @@ const initializeServer = async () => {
 
   // apply middleware
   app.use(helmet());
-  app.use(cors({
-    origin: [process.env.FRONTEND_URL!, "http://localhost:3000"],
-    credentials: true
-  }));
+  app.use(
+    cors({
+      origin: [process.env.FRONTEND_URL!, "http://localhost:3000"],
+      credentials: true,
+    })
+  );
   // app.set('trust proxy', 1);
   // app.use("/api", rateLimiter);
   app.use((req, res, next) => {
@@ -74,6 +79,15 @@ const initializeServer = async () => {
   );
 
   // routes
+  app.get("/", (req, res) => {
+    cron.schedule("*/5 * * * *", () => {
+      console.log("Running a task every 5 seconds");
+    });
+    res.status(200).json({
+      message: "Server running",
+      status: true,
+    });
+  });
   app.use("/api/users", userRoutes);
   app.use("/api/auth", authRoutes);
   app.use("/api/restaurants", restaurantRoutes);
